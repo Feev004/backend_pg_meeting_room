@@ -31,8 +31,6 @@ app.post("/login", async (req, res) => {
     `;
 
     const [rows] = await DB.query(sql, [username]);
-    // console.log("Rows:", rows);
-
     // ไม่พบ Username
     if (rows.length === 0) {
       return res.json({
