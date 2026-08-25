@@ -1,0 +1,46 @@
+services:
+  backend-dev:
+    image: node:20-alpine
+    container_name: pg-meeting-room-backend-dev
+    working_dir: /app
+    ports:
+      - "${PORT:-8000}:8000"
+    volumes:
+      - ./:/app
+      - /app/node_modules
+    env_file:
+      - .env
+    environment:
+      - NODE_ENV=development
+      - PORT=8000
+      - DB_HOST=${DB_HOST:-host.docker.internal}
+      - DB_USER=${DB_USER:-root}
+      - DB_PASSWORD=${DB_PASSWORD:-}
+      - DB_NAME=${DB_NAME:-war_room}
+      - CORS_ORIGIN=${CORS_ORIGIN:-http://localhost:3000}
+    command: sh -c "npm install && npm run dev"
+    extra_hosts:
+      - "host.docker.internal:host.gateway"
+    networks:
+      - app-network
+
+  ngrok:
+    image: ngrok/ngrok:latest
+    container_name: pg-meeting-room-ngrok-backend-dev
+    restart: unless-stopped
+    command:
+      - "http"
+      - "backend-dev:8000"
+    environment:
+      - NGROK_AUTHTOKEN=${NGROK_AUTHTOKEN}
+    ports:
+      - "4041:4040"
+    networks:
+      - app-network
+    depends_on:
+      - backend-dev
+
+networks:
+  app-network:
+    name: pg-meeting-network
+    driver: bridge

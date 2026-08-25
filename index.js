@@ -1,9 +1,10 @@
+require("dotenv").config();
 const express = require("express");
 const DB = require("./DB");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const app = express();
-const port = 5000;
+const port = process.env.PORT || 8000;
 
 // app.use(cors());
 app.use(express.json());
@@ -12,10 +13,14 @@ app.use(express.static("public"));
 
 app.use(
   cors({
-    origin: "http://192.168.201.3:5173", // Frontend
+    origin: process.env.CORS_ORIGIN || "http://localhost:3000", // Frontend
     credentials: true,
   }),
 );
+
+app.get("/", (req, res) => {
+  res.json({ success: true, message: "Backend API is running" });
+});
 
 app.get("/api/test_", async (req, res) => {
   try {
